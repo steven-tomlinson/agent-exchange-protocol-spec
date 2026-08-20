@@ -1,0 +1,45 @@
+{
+  "name": "@steventomlinson/aep-spec",
+  "version": "0.1.0",
+  "description": "Agent Exchange Protocol (AEP) Specification & Formal JSON Schemas",
+  "author": "Steven B. Tomlinson <turbodex@steventomlinson.dev>",
+  "license": "CC-BY-4.0 AND MIT",
+  "homepage": "https://github.com/steven-tomlinson/agent-exchange-protocol-spec#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/steven-tomlinson/agent-exchange-protocol-spec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/steven-tomlinson/agent-exchange-protocol-spec/issues"
+  },
+  "type": "module",
+  "main": "./schemas/envelope.json",
+  "files": [
+    "AEP-001.md",
+    "README.md",
+    "LICENSE-SPEC.md",
+    "LICENSE-CODE.md",
+    "schemas/"
+  ],
+  "scripts": {
+    "test": "node scripts/validate-schemas.mjs"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  },
+  "keywords": [
+    "agent-exchange-protocol",
+    "aep",
+    "ai-agents",
+    "protocol-specification",
+    "json-schema",
+    "mcp",
+    "x402",
+    "w3c-did",
+    "p2p-messaging",
+    "zero-knowledge-proofs",
+    "base",
+    "stellar"
+  ]
+}

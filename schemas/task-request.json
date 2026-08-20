@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/aep-spec/agent-exchange-protocol-spec/main/schemas/task-request.json",
+  "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/task-request.json",
   "title": "AEP Task Request Payload",
   "description": "Payload format for requesting task/capability execution (task.request).",
   "type": "object",

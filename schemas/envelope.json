@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/aep-spec/agent-exchange-protocol-spec/main/schemas/envelope.json",
+  "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/envelope.json",
   "title": "AEP Signed Envelope",
   "description": "Standard signed container envelope for Agent Exchange Protocol (AEP) 0.2 messages.",
   "type": "object",

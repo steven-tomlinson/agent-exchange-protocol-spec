@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/aep-spec/agent-exchange-protocol-spec/main/schemas/proposal-bid.json",
+  "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/proposal-bid.json",
   "title": "AEP Proposal Payload",
   "description": "Payload format for provider proposals and bids (proposal.bid, proposal.counter).",
   "type": "object",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/aep-spec/agent-exchange-protocol-spec/main/schemas/agreement-approval.json",
+  "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/agreement-approval.json",
   "title": "AEP Agreement Accepted Payload",
   "description": "Payload format for bilateral accepted agreement contracts (agreement.accepted).",
   "type": "object",

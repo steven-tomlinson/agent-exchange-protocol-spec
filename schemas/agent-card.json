@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/aep-spec/agent-exchange-protocol-spec/main/schemas/agent-card.json",
+  "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/agent-card.json",
   "title": "AEP Agent Card Payload",
   "description": "Payload format for agent capability advertisement (agent.card).",
   "type": "object",
