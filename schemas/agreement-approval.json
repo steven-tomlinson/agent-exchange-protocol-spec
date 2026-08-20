@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aep-spec/agent-exchange-protocol-spec/main/schemas/agreement-approval.json",
+  "title": "AEP Agreement Accepted Payload",
+  "description": "Payload format for bilateral accepted agreement contracts (agreement.accepted).",
+  "type": "object",
+  "required": [
+    "type",
+    "agreementId",
+    "taskId",
+    "proposalId",
+    "requesterId",
+    "providerId",
+    "terms",
+    "termsHash",
+    "requesterSignature",
+    "providerSignature"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "agreement.accepted"
+    },
+    "agreementId": { "type": "string", "minLength": 1 },
+    "taskId": { "type": "string", "minLength": 1 },
+    "proposalId": { "type": "string", "minLength": 1 },
+    "requesterId": { "type": "string", "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$" },
+    "providerId": { "type": "string", "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$" },
+    "terms": {
+      "type": "object",
+      "required": ["objective", "inputs", "deliverables", "price", "deadline", "acceptance", "settlement"],
+      "properties": {
+        "objective": { "type": "string", "minLength": 1 },
+        "inputs": { "type": "array" },
+        "deliverables": { "type": "array" },
+        "price": {
+          "type": "object",
+          "required": ["currency", "amount"],
+          "properties": {
+            "currency": { "type": "string", "enum": ["CREDIT", "XLM", "USDC", "LBX"] },
+            "amount": { "type": "string", "pattern": "^(0|[1-9]\\d*)(\\.\\d+)?$" }
+          }
+        },
+        "deadline": { "type": "string", "format": "date-time" },
+        "acceptance": {},
+        "settlement": {}
+      }
+    },
+    "termsHash": { "type": "string", "minLength": 1 },
+    "requesterSignature": {
+      "type": "object",
+      "required": ["algorithm", "publicKey", "value"],
+      "properties": {
+        "algorithm": { "type": "string", "const": "ES256K" },
+        "publicKey": { "type": "string", "minLength": 1 },
+        "value": { "type": "string", "minLength": 1 }
+      }
+    },
+    "providerSignature": {
+      "type": "object",
+      "required": ["algorithm", "publicKey", "value"],
+      "properties": {
+        "algorithm": { "type": "string", "const": "ES256K" },
+        "publicKey": { "type": "string", "minLength": 1 },
+        "value": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "additionalProperties": false
+}

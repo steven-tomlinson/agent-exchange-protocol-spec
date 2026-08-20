@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aep-spec/agent-exchange-protocol-spec/main/schemas/task-request.json",
+  "title": "AEP Task Request Payload",
+  "description": "Payload format for requesting task/capability execution (task.request).",
+  "type": "object",
+  "required": [
+    "type",
+    "taskId",
+    "title",
+    "objective",
+    "requiredCapabilities",
+    "inputs",
+    "constraints",
+    "acceptance",
+    "bidding"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "task.request"
+    },
+    "taskId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requiredCapabilities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["artifactId", "name", "mediaType", "byteLength", "digest", "location"],
+        "properties": {
+          "artifactId": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "mediaType": { "type": "string", "minLength": 1 },
+          "byteLength": { "type": "integer", "minimum": 0 },
+          "digest": {
+            "type": "object",
+            "required": ["algorithm", "value"],
+            "properties": {
+              "algorithm": { "type": "string", "const": "sha256" },
+              "value": { "type": "string", "minLength": 1 }
+            }
+          },
+          "location": { "type": "object" },
+          "encryption": { "type": "object" }
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "required": ["maximumPrice", "deadline", "requiredOutputMediaTypes", "confidentiality"],
+      "properties": {
+        "maximumPrice": {
+          "type": "object",
+          "required": ["currency", "amount"],
+          "properties": {
+            "currency": { "type": "string", "enum": ["CREDIT", "XLM", "USDC", "LBX"] },
+            "amount": { "type": "string", "pattern": "^(0|[1-9]\\d*)(\\.\\d+)?$" }
+          }
+        },
+        "acceptedSettlementRails": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "enum": ["demo-credit", "stellar-x402", "base-lockb0x"] }
+        },
+        "deadline": { "type": "string", "format": "date-time" },
+        "requiredOutputMediaTypes": { "type": "array", "items": { "type": "string" } },
+        "confidentiality": { "type": "string", "enum": ["public", "private"] }
+      }
+    },
+    "acceptance": {
+      "type": "object",
+      "required": ["deterministicChecks"],
+      "properties": {
+        "deterministicChecks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "description", "kind"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "description": { "type": "string", "minLength": 1 },
+              "kind": { "type": "string", "enum": ["digest", "schema", "command"] },
+              "expected": { "type": "string" }
+            }
+          }
+        },
+        "evaluationRubric": {},
+        "minimumScore": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "bidding": {
+      "type": "object",
+      "required": ["closesAt", "selectionMode", "allowCounteroffers"],
+      "properties": {
+        "closesAt": { "type": "string", "format": "date-time" },
+        "selectionMode": { "type": "string", "enum": ["requester", "policy"] },
+        "allowCounteroffers": { "type": "boolean" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

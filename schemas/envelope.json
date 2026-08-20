@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aep-spec/agent-exchange-protocol-spec/main/schemas/envelope.json",
+  "title": "AEP Signed Envelope",
+  "description": "Standard signed container envelope for Agent Exchange Protocol (AEP) 0.2 messages.",
+  "type": "object",
+  "required": [
+    "protocol",
+    "version",
+    "network",
+    "messageId",
+    "messageType",
+    "sender",
+    "createdAt",
+    "sequence",
+    "payload",
+    "signature"
+  ],
+  "properties": {
+    "protocol": {
+      "type": "string",
+      "const": "agent-exchange"
+    },
+    "version": {
+      "type": "string",
+      "const": "0.2"
+    },
+    "network": {
+      "type": "string",
+      "enum": [
+        "stellar:testnet",
+        "stellar:pubnet",
+        "eip155:84532",
+        "eip155:8453"
+      ]
+    },
+    "messageId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "messageType": {
+      "type": "string",
+      "enum": [
+        "agent.card",
+        "task.request",
+        "proposal.bid",
+        "proposal.counter",
+        "proposal.clarification",
+        "proposal.decline",
+        "clarification.request",
+        "clarification.response",
+        "proposal.selected",
+        "agreement.offer",
+        "agreement.acceptance",
+        "agreement.accepted",
+        "task.event",
+        "receipt.delivery",
+        "receipt.evaluation",
+        "receipt.settlement"
+      ]
+    },
+    "sender": {
+      "type": "string",
+      "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+    },
+    "recipient": {
+      "type": "string",
+      "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+    },
+    "taskId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "negotiationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agreementId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "previousMessageId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "payload": {
+      "type": "object"
+    },
+    "signature": {
+      "type": "object",
+      "required": ["algorithm", "publicKey", "value"],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "const": "ES256K"
+        },
+        "publicKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

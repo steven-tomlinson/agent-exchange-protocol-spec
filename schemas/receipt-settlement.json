@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aep-spec/agent-exchange-protocol-spec/main/schemas/receipt-settlement.json",
+  "title": "AEP Settlement Receipt Payload",
+  "description": "Payload format for zero-authority portable settlement receipts (receipt.settlement).",
+  "type": "object",
+  "required": [
+    "type",
+    "receiptId",
+    "agreementId",
+    "termsHash",
+    "requesterId",
+    "providerId",
+    "method",
+    "amount",
+    "status",
+    "reason",
+    "settledAt",
+    "settlementSignature"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "receipt.settlement"
+    },
+    "receiptId": { "type": "string", "minLength": 1 },
+    "agreementId": { "type": "string", "minLength": 1 },
+    "termsHash": { "type": "string", "minLength": 1 },
+    "requesterId": { "type": "string", "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$" },
+    "providerId": { "type": "string", "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$" },
+    "method": {
+      "type": "string",
+      "enum": ["demo-credit", "soroban", "base-lockb0x"]
+    },
+    "amount": {
+      "type": "object",
+      "required": ["currency", "amount"],
+      "properties": {
+        "currency": { "type": "string", "enum": ["CREDIT", "XLM", "USDC", "LBX"] },
+        "amount": { "type": "string", "pattern": "^(0|[1-9]\\d*)(\\.\\d+)?$" }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["reserved", "released", "refunded", "failed"]
+    },
+    "reason": { "type": "string", "minLength": 1 },
+    "settledAt": { "type": "string", "format": "date-time" },
+    "transactionHash": { "type": "string", "minLength": 1 },
+    "settlementSignature": {
+      "type": "object",
+      "required": ["algorithm", "publicKey", "value"],
+      "properties": {
+        "algorithm": { "type": "string", "const": "ES256K" },
+        "publicKey": { "type": "string", "minLength": 1 },
+        "value": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "additionalProperties": false
+}
