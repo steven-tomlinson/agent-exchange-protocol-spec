@@ -1,0 +1,281 @@
+Network Working Group                                      S. Tomlinson
+Internet-Draft                                          August 20, 2026
+Intended Status: Standards Track                       
+Expires: February 21, 2027
+
+
+                    Agent Exchange Protocol (AEP) 0.2
+                    draft-tomlinson-agent-exchange-00
+
+Abstract
+
+   This document specifies the Agent Exchange Protocol (AEP) version
+   0.2, an open, transport-agnostic, cryptographically verifiable
+   messaging and transaction protocol for autonomous artificial
+   intelligence (AI) software agents. AEP defines signed message
+   envelopes, state machine transitions, multi-rail payment settlement
+   negotiation, and portable zero-authority receipts. AEP enables
+   independent software agents to publish capabilities, negotiate
+   bilateral commitments, deliver verifiable work artifacts, and issue
+   settlements across heterogeneous execution environments without central
+   marketplace authorities or single-point-of-failure intermediaries.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF). Note that other groups may also distribute
+   working documents as Internet-Drafts. The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time. It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on February 21, 2027.
+
+Copyright Notice
+
+   Copyright (c) 2026 IETF Trust and the persons identified as the
+   document authors. All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (https://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document. Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.
+
+Table of Contents
+
+   1. Introduction and Motivation .................................... 2
+   2. Terminology and Conformance .................................... 2
+   3. Envelope Architecture and Cryptography ......................... 3
+      3.1. Envelope JSON Structure ................................... 3
+      3.2. Public Key Infrastructure and Signing ..................... 4
+      3.3. Network Lane Isolation .................................... 4
+   4. Protocol State Machine and Message Flow ........................ 5
+      4.1. Message Types ............................................. 5
+      4.2. Negotiation State Machine ................................. 6
+   5. Settlement Rail Negotiation Protocol ........................... 7
+      5.1. Normative Settlement Rails ................................ 7
+      5.2. Rail Selection and Negotiation Rules ...................... 7
+   6. Zero-Authority Portable Receipts ............................... 8
+   7. Security Considerations ........................................ 8
+   8. IANA Considerations ............................................ 9
+   9. References .................................................... 10
+      9.1. Normative References ..................................... 10
+      9.2. Informative References ................................... 10
+   Author's Address ................................................. 11
+
+1. Introduction and Motivation
+
+   As software architectures transition toward multi-agent AI ecosystems,
+   autonomous software entities require standardized protocol mechanisms
+   to discover specialist capabilities, negotiate pricing, enforce service
+   level agreements (SLAs), and issue verifiable payment compensation.
+   Existing application-layer protocols (such as standard REST APIs or
+   monolithic SaaS marketplaces) rely on centralized authentication
+   authorities, platform fee extraction, and single-host endpoints.
+
+   The Agent Exchange Protocol (AEP) addresses these limitations by
+   specifying:
+
+   1. Decoupled Transport: Envelopes travel over peer-to-peer (P2P)
+      overlay networks (such as Waku v2 or libp2p) or local fallback
+      message transports without centralized broker dependencies.
+
+   2. Network Lane Isolation: Envelopes explicitly declare their target
+      network lane, preventing cross-chain and cross-environment message
+      replay attacks.
+
+   3. Multi-Rail Settlement Negotiation: Agents dynamically negotiate
+      payment rails (such as demo-credit, Stellar x402, or Base Lockb0x
+      zero-knowledge escrows) in protocol messages prior to commitment.
+
+   4. Zero-Authority Portable Receipts: Execution and payment evidence
+      consists of off-chain signed envelopes and on-chain verifiable
+      transactions that any third-party observer can independently verify.
+
+2. Terminology and Conformance
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   Agent Identifier (AgentId): A string matching "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+      derived from the Base58BTC encoding of an agent's public key digest.
+
+   Envelope: A cryptographically signed JSON container (SignedEnvelope)
+      wrapping a specific AEP protocol payload.
+
+   Requester: An agent issuing a task.request envelope seeking external
+      capability execution.
+
+   Provider: An agent advertising an agent.card and submitting a
+      proposal.bid envelope to perform work.
+
+   Observer: An independent passive or active node verifying protocol
+      envelopes, state transitions, and settlement receipts without
+      marketplace authority.
+
+3. Envelope Architecture and Cryptography
+
+3.1. Envelope JSON Structure
+
+   All protocol messages MUST be encapsulated in a SignedEnvelope JSON
+   object adhering to the following structure:
+
+   {
+     "protocol": "agent-exchange",
+     "version": "0.2",
+     "network": "eip155:8453",
+     "messageId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+     "messageType": "task.request",
+     "sender": "ae:17bXzK9P8qL3mN5vR2wT4yU1j",
+     "sequence": 42,
+     "createdAt": "2026-08-20T12:00:00Z",
+     "payload": { ... },
+     "signature": {
+       "algorithm": "ES256K",
+       "publicKey": "04a1b2c3d4e5f6...",
+       "value": "3045022100a1b2c3d4..."
+     }
+   }
+
+3.2. Public Key Infrastructure and Signing
+
+   1. Cryptographic Curve and Algorithm: Signatures MUST use ES256K
+      (ECDSA over secp256k1 with SHA-256 digest).
+
+   2. Canonicalization: The signature MUST cover the JSON-serialized
+      representation of the UnsignedEnvelope (the envelope object
+      excluding the "signature" key).
+
+   3. Sender Binding: The "sender" field MUST match the Base58BTC
+      derived AgentId of "signature.publicKey".
+
+3.3. Network Lane Isolation
+
+   Every envelope MUST explicitly specify the "network" field using a
+   recognized Chain Agnostic Improvement Proposal (CAIP-2) identifier:
+   - "stellar:testnet"
+   - "stellar:pubnet"
+   - "eip155:84532" (Base Sepolia Testnet)
+   - "eip155:8453" (Base Mainnet)
+
+   Receiving implementations MUST verify that an envelope's declared
+   "network" matches the transport context's configured network lane
+   before attempting signature validation. Cross-lane messages MUST be
+   rejected immediately.
+
+4. Protocol State Machine and Message Flow
+
+4.1. Message Types
+
+   AEP defines sixteen normative message envelope payload types:
+   1. agent.card: Capability and payout advertisement.
+   2. task.request: Need solicitation and constraint declaration.
+   3. proposal.bid: Provider bid matching a task request.
+   4. proposal.counter: Provider or requester counter-proposal.
+   5. proposal.clarification: Query regarding proposal terms.
+   6. proposal.decline: Rejection of proposal terms.
+   7. clarification.request: Formal clarification question.
+   8. clarification.response: Formal clarification answer.
+   9. proposal.selected: Requester notification of chosen bid.
+   10. agreement.offer: Dual-signed contract offer by requester.
+   11. agreement.acceptance: Dual-signed contract acceptance by provider.
+   12. agreement.accepted: Fully committed bilateral agreement.
+   13. task.event: Progress status event (WORKING, FAILED, etc.).
+   14. receipt.delivery: Provider delivery receipt with artifact hashes.
+   15. receipt.evaluation: Optional quality evaluation score receipt.
+   16. receipt.settlement: Final zero-authority proof of payment.
+
+4.2. Negotiation State Machine
+
+   The formal state transitions MUST obey the following lifecycle:
+
+   [OPEN] -------> [NEGOTIATING] -------> [AGREED] -------> [FUNDED]
+  (task.request)   (proposal.bid)   (agreement.accepted)  (reservation)
+                                                                |
+   [COMPLETED] <--- [EVALUATING] <--- [DELIVERED] <--- [WORKING]
+ (receipt.settled) (receipt.eval)   (receipt.delivery) (task.event)
+
+5. Settlement Rail Negotiation Protocol
+
+5.1. Normative Settlement Rails
+
+   AEP standardizes three settlement rail specifications:
+   - demo-credit: Simulated local ledger using CREDIT currency.
+   - stellar-x402: HTTP x402 payment protocol with Soroban payment
+     authorization using XLM, USDC, or LBX assets (7 decimals).
+   - base-lockb0x: Lockb0x Groth16 BN254 Zero-Knowledge Escrow on
+     EVM networks using USDC (6 decimals) with EIP-3009 authorization.
+
+5.2. Rail Selection and Negotiation Rules
+
+   1. Provider agent.card MUST declare supportedSettlementRails.
+   2. Requester task.request MUST declare constraints.acceptedSettlementRails.
+   3. Provider proposal.bid MUST select exactly ONE settlementRail present in
+      both declarations.
+   4. The resulting agreement.accepted MUST bind the chosen settlement rail in
+      terms.settlement.
+
+6. Zero-Authority Portable Receipts
+
+   AEP avoids centralized reputation indices. Execution and payment
+   results produce portable, cryptographically signed receipts
+   (receipt.delivery, receipt.evaluation, and receipt.settlement).
+   Any node or third-party observer can independently aggregate these
+   receipts to construct a verifiable local reputation graph without
+   relying on unauthenticated feedback endpoints.
+
+7. Security Considerations
+
+   - Private Key Isolation: Requester private key material MUST NOT be
+     transmitted to providers or relays. Payment authorizations (EIP-3009
+     or Soroban auth) are signed client-side for exact terms hashes.
+
+   - Replay Protection: Envelopes carry a mandatory monotonic sequence
+     number, UUID messageId, and timestamp validation window.
+
+   - Data Confidentiality: Artifact payloads MAY be encrypted out-of-band
+     using xchacha20-poly1305 before referencing in artifact descriptors.
+
+8. IANA Considerations
+
+   This document requests no initial IANA registry actions. Future
+   revisions may request registration of the "agent-exchange" protocol
+   identifier and Waku content topic namespaces.
+
+9. References
+
+9.1. Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, May 2017.
+
+9.2. Informative References
+
+   [CAIP-2]   Chain Agnostic Standards Alliance, "CAIP-2: Blockchain
+              ID Specification", 2020.
+
+   [EIP-3009] EVM Community, "EIP-3009: Transfer With Authorization",
+              2020.
+
+   [W3C-DID]  W3C, "Decentralized Identifiers (DIDs) v1.0", 2022.
+
+Author's Address
+
+   Steven B. Tomlinson
+   AEP Project Author
+   Email: turbodex@steventomlinson.dev
+   URI: https://github.com/steven-tomlinson/agent-exchange-protocol-spec
