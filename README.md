@@ -25,4 +25,4 @@ Formal JSON Schema definitions (Draft 2020-12) for validating protocol envelopes
 - **Specification & Documentation**: Licensed under the [Creative Commons Attribution 4.0 International License (CC-BY-4.0)](LICENSE-SPEC.md). You are free to share and adapt the material for any purpose, including commercial, provided appropriate credit is given.
 - **JSON Schemas & Reference Code**: Licensed under the [MIT License](LICENSE-CODE.md).
 
-*Copyright (c) 2026 Steven D. AEP Project.*
+*Copyright (c) 2026 Steven B. Tomlinson.*

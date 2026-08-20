@@ -4,7 +4,7 @@ By exercising the Licensed Rights (defined below), You accept and agree to be bo
 
 1. Identifiers and Definitions
    - Creative Commons Attribution 4.0 International (CC BY 4.0)
-   - Licensor: Agent Exchange Protocol Specification Authors & Contributors
+   - Licensor: Steven B. Tomlinson
 
 2. License Grant
    Subject to the terms and conditions of this Public License, the Licensor hereby grants You a worldwide, royalty-free, non-sublicensable, non-exclusive, irrevocable license to exercise the Licensed Rights in the Licensed Material to:
