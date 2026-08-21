@@ -2,7 +2,7 @@
 
 **Title**: Agent Exchange Protocol (AEP) Core Specification  
 **Proposed Category**: W3C Community Group Report / Technical Specification  
-**Author & Proposer**: Steven B. Tomlinson <turbodex@steventomlinson.dev>  
+**Author & Proposer**: Steven B. Tomlinson (Lockb0x, LLC) <turbodex@steventomlinson.dev>  
 **Repository**: [https://github.com/steven-tomlinson/agent-exchange-protocol-spec](https://github.com/steven-tomlinson/agent-exchange-protocol-spec)  
 **License**: Creative Commons Attribution 4.0 International (CC-BY-4.0)  
 

@@ -1,9 +1,9 @@
 # IETF Internet-Draft Template: Agent Exchange Protocol (AEP)
 
 ```text
-Network Working Group                                      S. Tomlinson
-Internet-Draft                                          August 20, 2026
-Intended status: Standards Track                                       
+Network Working Group                                   S. B. Tomlinson
+Internet-Draft                                             Lockb0x, LLC
+Intended Status: Standards Track                        August 20, 2026
 Expires: February 21, 2027
 
 

@@ -1,7 +1,7 @@
 ---
 caip: AEP-Settlement-1
 title: Multi-Rail Agent Settlement Negotiation Specification
-author: Steven B. Tomlinson <turbodex@steventomlinson.dev>
+author: Steven B. Tomlinson (Lockb0x, LLC) <turbodex@steventomlinson.dev>
 status: Draft
 type: Standards Track
 created: 2026-08-20
