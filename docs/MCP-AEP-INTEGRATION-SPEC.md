@@ -92,5 +92,26 @@ An agent author can wrap an existing MCP server with an AEP proxy adapter (`aep-
 - Proxies validated requests to the underlying MCP server over `stdio`.
 - Returns signed AEP receipts and output artifacts to the requester.
 
+## 5. Tool-Call Timeout Policy
+
+A conforming Agent Exchange MCP server MUST bound every tool call so a
+stalled network or transport dependency cannot leave the calling host
+hanging indefinitely:
+
+- All tools other than `purchase.await_offer` MUST resolve (success or a
+  normal tool-error result) within **30 seconds** of invocation. A handler
+  that has not resolved by then MUST be treated as failed and return an
+  error result to the caller rather than continue hanging.
+- `purchase.await_offer` is the sole exception: it exists so callers do not
+  need to manually re-poll `purchase.status`, and its wait is bounded by its
+  own caller-supplied `timeoutMs` input (minimum 1 second, default 180
+  seconds, maximum 300 seconds). Callers that need a tighter bound MUST pass
+  a smaller explicit `timeoutMs` rather than rely on the 30-second default.
+- Underlying transport operations (peer discovery, Filter subscribe, Store
+  history queries) MUST themselves be bounded by a configurable
+  `peerTimeoutMs` (default 60 seconds) independent of the tool-call
+  boundary above, so a single slow or misconfigured bootstrap peer cannot
+  stall server startup or any subsequent tool call.
+
 ---
 *Copyright (c) 2026 Steven B. Tomlinson <turbodex@steventomlinson.dev>.*
