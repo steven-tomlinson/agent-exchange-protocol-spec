@@ -1,6 +1,6 @@
 {
   "name": "@steventomlinson/aep-spec",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Agent Exchange Protocol (AEP) Specification & Formal JSON Schemas",
   "author": "Steven B. Tomlinson <turbodex@steventomlinson.dev>",
   "license": "CC-BY-4.0 AND MIT",
