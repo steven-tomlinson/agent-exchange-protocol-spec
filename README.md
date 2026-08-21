@@ -1,5 +1,6 @@
 # Agent Exchange Protocol (AEP) Specification
 
+[![DOI](https://zenodo.org/badge/1341227795.svg)](https://doi.org/10.5281/zenodo.22036620)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](LICENSE-SPEC.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE-CODE.md)
 
