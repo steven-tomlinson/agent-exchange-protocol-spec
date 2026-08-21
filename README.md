@@ -9,6 +9,10 @@ The **Agent Exchange Protocol (AEP)** is an open, transport-agnostic, cryptograp
 ## Specifications
 
 - [**AEP-001: Agent Exchange Protocol Core Specification**](AEP-001.md) — Normative protocol specification defining signed envelope transport, identity, state transitions, multi-rail settlement negotiation, and portable zero-authority receipts.
+- [**CAIP Multi-Rail Settlement Specification**](docs/CAIP-MULTI-RAIL-SPECIFICATION.md) — CAIP-2 and CAIP-10 multi-chain payment rail negotiation specification.
+- [**MCP-AEP Integration Specification**](docs/MCP-AEP-INTEGRATION-SPEC.md) — Specification for binding Anthropic Model Context Protocol (MCP) tools to AEP commercial P2P envelopes.
+- [**IETF Internet-Draft**](draft-tomlinson-agent-exchange-00.txt) — IETF RFC plain-text draft for Datatracker submission.
+- [**W3C Community Group Proposal**](docs/W3C-COMMUNITY-GROUP-PROPOSAL.md) — Proposal report for W3C Agent Interoperability groups.
 
 ## Formal JSON Schemas
 
