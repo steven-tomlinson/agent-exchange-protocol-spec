@@ -63,12 +63,17 @@ Table of Contents
    5. Settlement Rail Negotiation Protocol ........................... 7
       5.1. Normative Settlement Rails ................................ 7
       5.2. Rail Selection and Negotiation Rules ...................... 7
+      5.3. Reference Implementations (Informative) ................... 7
    6. Zero-Authority Portable Receipts ............................... 8
-   7. Security Considerations ........................................ 8
-   8. IANA Considerations ............................................ 9
-   9. References .................................................... 10
-      9.1. Normative References ..................................... 10
-      9.2. Informative References ................................... 10
+   7. Artifact References and Content-Addressed Delivery ............. 8
+   8. Optional Certification Attestations ............................ 9
+      8.1. Normative Requirements .................................... 9
+      8.2. Attestation Types (Informative) ........................... 9
+   9. Security Considerations ....................................... 10
+   10. IANA Considerations .......................................... 10
+   11. References ................................................... 10
+      11.1. Normative References .................................... 10
+      11.2. Informative References .................................. 11
    Author's Address ................................................. 11
 
 1. Introduction and Motivation
@@ -226,6 +231,14 @@ Table of Contents
    4. The resulting agreement.accepted MUST bind the chosen settlement rail in
       terms.settlement.
 
+5.3. Reference Implementations (Informative)
+
+   The base-lockb0x rail has a hosted reference deployment (an
+   AgentCardRegistry and Lockb0x escrow contracts on the Base network).
+   The stellar-x402 rail is normative with open-source reference code
+   and no hosted reference service. Rail normativity is independent of
+   any party operating infrastructure for it.
+
 6. Zero-Authority Portable Receipts
 
    AEP avoids centralized reputation indices. Execution and payment
@@ -235,7 +248,68 @@ Table of Contents
    receipts to construct a verifiable local reputation graph without
    relying on unauthenticated feedback endpoints.
 
-7. Security Considerations
+7. Artifact References and Content-Addressed Delivery
+
+   Task inputs and deliverables are exchanged as artifact descriptors,
+   not inline payloads.
+
+   1. Artifact descriptors SHOULD reference content by content
+      identifier (CID) or cryptographic digest so any party can verify
+      integrity independently of the delivery channel.
+
+   2. Participants MAY exchange artifact bytes over any mutually
+      reachable channel. Neutral storage relays (for example, a
+      Waku/Logos Storage node exposing CID retrieval over HTTPS) MAY
+      serve as drop-off and pick-up locations between requester and
+      provider; such relays hold no protocol authority and their
+      availability MUST NOT be a conformance requirement.
+
+   3. receipt.delivery MUST bind the delivered artifact digests/CIDs,
+      making delivery independently verifiable regardless of which
+      relay carried the bytes.
+
+   4. Confidential artifacts SHOULD be encrypted out-of-band before
+      upload to any relay; relays are assumed untrusted.
+
+8. Optional Certification Attestations
+
+   Attestations are third-party trust signals a verifier MAY weigh
+   during counterparty selection. They extend, and never replace, the
+   zero-authority model of Section 6.
+
+8.1. Normative Requirements
+
+   1. An agent.card MAY include an "attestations" array. Each entry
+      MUST contain: attestationType (string), issuer (chain-qualified
+      address or DID), subject (the operator address or AgentId
+      binding), and reference (a resolvable on-chain or verifiable-
+      credential locator); it MAY contain validUntil (ISO 8601).
+
+   2. Verifiers MUST validate attestation claims against the
+      referenced source; the envelope's self-declaration alone carries
+      no evidentiary weight.
+
+   3. Implementations MUST NOT require any registry entry, sponsorship,
+      or attestation as a precondition of protocol participation.
+      Attestations are evidence for verifiers, never gates enforced by
+      the transport or kernel.
+
+   4. Attestation issuers hold no protocol authority. Acceptance policy
+      is strictly local to each verifier.
+
+8.2. Attestation Types (Informative)
+
+   The vocabulary is open; new types do not require a revision of this
+   document. Examples: "sponsorship" (a fee-backed registry entry
+   binding an operator to an agent identity); "human-operated" (a
+   proof-of-humanity claim for the operating principal, issued by a
+   third-party verifier -- raw biometric material is out of scope and
+   MUST NOT transit the protocol); "jurisdiction" (a verified
+   country/region claim). Time-bounded validity combined with issuer
+   revocation is the RECOMMENDED mitigation for credential transfer or
+   resale.
+
+9. Security Considerations
 
    - Private Key Isolation: Requester private key material MUST NOT be
      transmitted to providers or relays. Payment authorizations (EIP-3009
@@ -247,15 +321,15 @@ Table of Contents
    - Data Confidentiality: Artifact payloads MAY be encrypted out-of-band
      using xchacha20-poly1305 before referencing in artifact descriptors.
 
-8. IANA Considerations
+10. IANA Considerations
 
    This document requests no initial IANA registry actions. Future
    revisions may request registration of the "agent-exchange" protocol
    identifier and Waku content topic namespaces.
 
-9. References
+11. References
 
-9.1. Normative References
+11.1. Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
@@ -263,7 +337,7 @@ Table of Contents
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, May 2017.
 
-9.2. Informative References
+11.2. Informative References
 
    [CAIP-2]   Chain Agnostic Standards Alliance, "CAIP-2: Blockchain
               ID Specification", 2020.

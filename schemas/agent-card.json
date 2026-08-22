@@ -97,6 +97,21 @@
         }
       }
     },
+    "attestations": {
+      "description": "Optional third-party trust signals (AEP-001 section 8). Verifiers MUST validate each entry against its referenced source; attestations are never a participation requirement.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["attestationType", "issuer", "subject", "reference"],
+        "properties": {
+          "attestationType": { "type": "string", "minLength": 1 },
+          "issuer": { "type": "string", "minLength": 1 },
+          "subject": { "type": "string", "minLength": 1 },
+          "reference": { "type": "string", "minLength": 1 },
+          "validUntil": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
     "constraints": {
       "type": "object",
       "required": ["maxConcurrentTasks", "supportedMediaTypes"],
