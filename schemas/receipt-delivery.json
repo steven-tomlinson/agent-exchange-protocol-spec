@@ -1,34 +1,40 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/task-request.json",
-  "title": "AEP Task Request",
-  "description": "Bounded capability request payload.",
+  "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/receipt-delivery.json",
+  "title": "AEP Delivery Receipt",
+  "description": "Provider delivery receipt payload.",
   "type": "object",
   "properties": {
     "type": {
       "type": "string",
-      "const": "task.request"
+      "const": "receipt.delivery"
+    },
+    "receiptId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agreementId": {
+      "type": "string",
+      "minLength": 1
     },
     "taskId": {
       "type": "string",
       "minLength": 1
     },
-    "title": {
+    "requesterId": {
+      "type": "string",
+      "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+    },
+    "providerId": {
+      "type": "string",
+      "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+    },
+    "termsHash": {
       "type": "string",
       "minLength": 1
     },
-    "objective": {
-      "type": "string",
-      "minLength": 1
-    },
-    "requiredCapabilities": {
+    "artifacts": {
       "minItems": 1,
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "inputs": {
       "type": "array",
       "items": {
         "type": "object",
@@ -193,156 +199,75 @@
         "additionalProperties": false
       }
     },
-    "constraints": {
+    "startedAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+    },
+    "deliveredAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+    },
+    "providerSignature": {
       "type": "object",
       "properties": {
-        "maximumPrice": {
-          "type": "object",
-          "properties": {
-            "currency": {
-              "type": "string",
-              "enum": [
-                "CREDIT",
-                "XLM",
-                "USDC",
-                "LBX"
-              ]
-            },
-            "amount": {
-              "type": "string",
-              "pattern": "^(0|[1-9]\\d*)(\\.\\d+)?$"
-            }
-          },
-          "required": [
-            "currency",
-            "amount"
-          ],
-          "additionalProperties": false
-        },
-        "acceptedSettlementRails": {
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "demo-credit",
-              "stellar-x402",
-              "base-lockb0x"
-            ]
-          }
-        },
-        "deadline": {
+        "algorithm": {
           "type": "string",
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          "const": "ES256K"
         },
-        "requiredOutputMediaTypes": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "confidentiality": {
+        "publicKey": {
           "type": "string",
-          "enum": [
-            "public",
-            "private"
-          ]
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
-        "maximumPrice",
-        "deadline",
-        "requiredOutputMediaTypes",
-        "confidentiality"
+        "algorithm",
+        "publicKey",
+        "value"
       ],
       "additionalProperties": false
     },
-    "acceptance": {
+    "requesterAcknowledgement": {
       "type": "object",
       "properties": {
-        "deterministicChecks": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "description": {
-                "type": "string",
-                "minLength": 1
-              },
-              "kind": {
-                "type": "string",
-                "enum": [
-                  "digest",
-                  "schema",
-                  "command"
-                ]
-              },
-              "expected": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "id",
-              "description",
-              "kind"
-            ],
-            "additionalProperties": false
-          }
+        "algorithm": {
+          "type": "string",
+          "const": "ES256K"
         },
-        "evaluationRubric": {},
-        "minimumScore": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100
+        "publicKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
-        "deterministicChecks"
-      ],
-      "additionalProperties": false
-    },
-    "bidding": {
-      "type": "object",
-      "properties": {
-        "closesAt": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-        },
-        "selectionMode": {
-          "type": "string",
-          "enum": [
-            "requester",
-            "policy"
-          ]
-        },
-        "allowCounteroffers": {
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "closesAt",
-        "selectionMode",
-        "allowCounteroffers"
+        "algorithm",
+        "publicKey",
+        "value"
       ],
       "additionalProperties": false
     }
   },
   "required": [
     "type",
+    "receiptId",
+    "agreementId",
     "taskId",
-    "title",
-    "objective",
-    "requiredCapabilities",
-    "inputs",
-    "constraints",
-    "acceptance",
-    "bidding"
+    "requesterId",
+    "providerId",
+    "termsHash",
+    "artifacts",
+    "startedAt",
+    "deliveredAt",
+    "providerSignature"
   ],
   "additionalProperties": false
 }

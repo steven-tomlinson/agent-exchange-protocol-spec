@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/clarification-response.json",
+  "title": "AEP Clarification Response",
+  "description": "Provider clarification response payload.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "clarification.response"
+    },
+    "clarificationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "taskId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "proposalId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requesterId": {
+      "type": "string",
+      "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+    },
+    "providerId": {
+      "type": "string",
+      "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+    },
+    "response": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "type",
+    "clarificationId",
+    "taskId",
+    "proposalId",
+    "requesterId",
+    "providerId",
+    "response"
+  ],
+  "additionalProperties": false
+}

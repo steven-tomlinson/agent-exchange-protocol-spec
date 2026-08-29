@@ -1,21 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/agent-card.json",
-  "title": "AEP Agent Card Payload",
-  "description": "Payload format for agent capability advertisement (agent.card).",
+  "title": "AEP Agent Card",
+  "description": "Provider capability advertisement payload.",
   "type": "object",
-  "required": [
-    "type",
-    "agentId",
-    "name",
-    "description",
-    "capabilities",
-    "pricing",
-    "constraints",
-    "availability",
-    "protocol",
-    "identity"
-  ],
   "properties": {
     "type": {
       "type": "string",
@@ -45,113 +33,314 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "name", "description", "tags"],
         "properties": {
-          "id": { "type": "string", "minLength": 1 },
-          "name": { "type": "string", "minLength": 1 },
-          "description": { "type": "string" },
-          "tags": { "type": "array", "items": { "type": "string" } },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "inputSchema": {},
           "outputSchema": {}
-        }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "tags"
+        ],
+        "additionalProperties": false
       }
     },
     "pricing": {
       "type": "object",
-      "required": ["currency", "model"],
       "properties": {
         "currency": {
           "type": "string",
-          "enum": ["CREDIT", "XLM", "USDC", "LBX"]
+          "enum": [
+            "CREDIT",
+            "XLM",
+            "USDC",
+            "LBX"
+          ]
         },
         "model": {
           "type": "string",
-          "enum": ["fixed", "per-token", "per-minute", "negotiated"]
+          "enum": [
+            "fixed",
+            "per-token",
+            "per-minute",
+            "negotiated"
+          ]
         },
         "minimum": {
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "currency",
+        "model"
+      ],
+      "additionalProperties": false
     },
     "supportedSettlementRails": {
-      "type": "array",
       "minItems": 1,
+      "type": "array",
       "items": {
         "type": "string",
-        "enum": ["demo-credit", "stellar-x402", "base-lockb0x"]
+        "enum": [
+          "demo-credit",
+          "stellar-x402",
+          "base-lockb0x"
+        ]
       }
     },
     "payouts": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["rail", "payTo"],
         "properties": {
           "rail": {
             "type": "string",
-            "enum": ["demo-credit", "stellar-x402", "base-lockb0x"]
+            "enum": [
+              "demo-credit",
+              "stellar-x402",
+              "base-lockb0x"
+            ]
           },
-          "payTo": { "type": "string", "minLength": 1 },
-          "resource": { "type": "string", "format": "uri" },
-          "lockb0x": { "type": "string", "pattern": "^0x[0-9a-fA-F]{40}$" }
-        }
-      }
-    },
-    "attestations": {
-      "description": "Optional third-party trust signals (AEP-001 section 8). Verifiers MUST validate each entry against its referenced source; attestations are never a participation requirement.",
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["attestationType", "issuer", "subject", "reference"],
-        "properties": {
-          "attestationType": { "type": "string", "minLength": 1 },
-          "issuer": { "type": "string", "minLength": 1 },
-          "subject": { "type": "string", "minLength": 1 },
-          "reference": { "type": "string", "minLength": 1 },
-          "validUntil": { "type": "string", "format": "date-time" }
-        }
+          "payTo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resource": {
+            "type": "string",
+            "format": "uri"
+          },
+          "lockb0x": {
+            "type": "string",
+            "pattern": "^0x[0-9a-fA-F]{40}$"
+          }
+        },
+        "required": [
+          "rail",
+          "payTo"
+        ],
+        "additionalProperties": false
       }
     },
     "constraints": {
       "type": "object",
-      "required": ["maxConcurrentTasks", "supportedMediaTypes"],
       "properties": {
-        "maxConcurrentTasks": { "type": "integer", "minimum": 1 },
-        "supportedMediaTypes": { "type": "array", "items": { "type": "string" } },
-        "requiresHumanApproval": { "type": "boolean" }
-      }
+        "maxConcurrentTasks": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "supportedMediaTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiresHumanApproval": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "maxConcurrentTasks",
+        "supportedMediaTypes"
+      ],
+      "additionalProperties": false
     },
     "availability": {
       "type": "object",
-      "required": ["status", "validUntil"],
       "properties": {
         "status": {
           "type": "string",
-          "enum": ["available", "busy", "offline"]
+          "enum": [
+            "available",
+            "busy",
+            "offline"
+          ]
         },
-        "validUntil": { "type": "string", "format": "date-time" }
-      }
+        "validUntil": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+        }
+      },
+      "required": [
+        "status",
+        "validUntil"
+      ],
+      "additionalProperties": false
     },
     "protocol": {
       "type": "object",
-      "required": ["versions", "extensions"],
       "properties": {
         "versions": {
+          "minItems": 1,
           "type": "array",
-          "items": { "type": "string", "const": "0.2" },
-          "minItems": 1
+          "items": {
+            "type": "string",
+            "const": "0.2"
+          }
         },
-        "extensions": { "type": "array", "items": { "type": "string" } }
-      }
+        "extensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "versions",
+        "extensions"
+      ],
+      "additionalProperties": false
     },
     "identity": {
       "type": "object",
-      "required": ["publicKey", "signingAlgorithm"],
       "properties": {
-        "publicKey": { "type": "string", "minLength": 1 },
-        "signingAlgorithm": { "type": "string", "const": "ES256K" }
+        "publicKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "signingAlgorithm": {
+          "type": "string",
+          "const": "ES256K"
+        }
+      },
+      "required": [
+        "publicKey",
+        "signingAlgorithm"
+      ],
+      "additionalProperties": false
+    },
+    "presentation": {
+      "type": "object",
+      "properties": {
+        "iconUrl": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "iconUrl"
+      ],
+      "additionalProperties": false
+    },
+    "advertisement": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "live",
+            "preview"
+          ]
+        },
+        "badges": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "STELLAR",
+              "BASE",
+              "PREVIEW"
+            ]
+          }
+        }
+      },
+      "required": [
+        "mode",
+        "badges"
+      ],
+      "additionalProperties": false
+    },
+    "certifications": {
+      "maxItems": 8,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "pakana.certification.reference.v1"
+          },
+          "certificateId": {
+            "type": "string",
+            "pattern": "^urn:pakana:(starter-pack|agent-control):[a-f0-9]{64}$"
+          },
+          "subjectId": {
+            "type": "string",
+            "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+          },
+          "credentialType": {
+            "type": "string",
+            "enum": [
+              "pakana.starter-pack.credential.v1",
+              "pakana.agent-control.credential.v1"
+            ]
+          },
+          "issuerVerificationMethod": {
+            "type": "string",
+            "pattern": "^(G[A-Z2-7]{55}|0x[0-9a-fA-F]{40})$"
+          },
+          "digest": {
+            "type": "object",
+            "properties": {
+              "algorithm": {
+                "type": "string",
+                "const": "sha256-pakana-json-v1"
+              },
+              "value": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": [
+              "algorithm",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "type",
+          "certificateId",
+          "subjectId",
+          "credentialType",
+          "issuerVerificationMethod",
+          "digest"
+        ],
+        "additionalProperties": false
       }
     }
   },
+  "required": [
+    "type",
+    "agentId",
+    "name",
+    "description",
+    "capabilities",
+    "pricing",
+    "constraints",
+    "availability",
+    "protocol",
+    "identity"
+  ],
   "additionalProperties": false
 }

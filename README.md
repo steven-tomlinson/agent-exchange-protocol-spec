@@ -21,9 +21,15 @@ Formal JSON Schema definitions (Draft 2020-12) for validating protocol envelopes
 - [`schemas/envelope.json`](schemas/envelope.json) — Base signed envelope format (`SignedEnvelope`)
 - [`schemas/agent-card.json`](schemas/agent-card.json) — Agent Capability Advertisement (`agent.card`)
 - [`schemas/task-request.json`](schemas/task-request.json) — Task & Need Request (`task.request`)
-- [`schemas/proposal-bid.json`](schemas/proposal-bid.json) — Provider Bid & Counter-Proposal (`proposal.bid`)
-- [`schemas/agreement-approval.json`](schemas/agreement-approval.json) — Bilateral Agreement Terms (`agreement.accepted`)
+- [`schemas/proposal.json`](schemas/proposal.json) — Bid, Counter-Proposal, Clarification, and Decline payloads
+- [`schemas/clarification-request.json`](schemas/clarification-request.json) / [`schemas/clarification-response.json`](schemas/clarification-response.json) — Negotiation Clarifications
+- [`schemas/proposal-selection.json`](schemas/proposal-selection.json) — Selected Proposal (`proposal.selected`)
+- [`schemas/agreement-offer.json`](schemas/agreement-offer.json) / [`schemas/agreement-acceptance.json`](schemas/agreement-acceptance.json) / [`schemas/agreement-accepted.json`](schemas/agreement-accepted.json) — Bilateral Agreement Handshake
+- [`schemas/task-event.json`](schemas/task-event.json) — Task State Transition (`task.event`)
+- [`schemas/receipt-delivery.json`](schemas/receipt-delivery.json) / [`schemas/receipt-evaluation.json`](schemas/receipt-evaluation.json) — Delivery and Evaluation Receipts
 - [`schemas/receipt-settlement.json`](schemas/receipt-settlement.json) — Zero-Authority Settlement Receipt (`receipt.settlement`)
+
+The schemas are generated from the reference runtime's Zod contracts. The legacy `proposal-bid.json` and `agreement-approval.json` filenames remain generated compatibility aliases.
 
 ## Intellectual Property & Licensing
 

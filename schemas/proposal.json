@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/proposal-bid.json",
-  "title": "AEP Proposal Compatibility Alias",
-  "description": "Compatibility alias for the complete AEP proposal payload schema.",
+  "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/proposal.json",
+  "title": "AEP Proposal",
+  "description": "Bid, counteroffer, clarification, or decline proposal payload.",
   "type": "object",
   "properties": {
     "type": {

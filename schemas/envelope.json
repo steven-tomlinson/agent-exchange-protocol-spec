@@ -2,20 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/envelope.json",
   "title": "AEP Signed Envelope",
-  "description": "Standard signed container envelope for Agent Exchange Protocol (AEP) 0.2 messages.",
+  "description": "Signed AEP 0.2 message envelope.",
   "type": "object",
-  "required": [
-    "protocol",
-    "version",
-    "network",
-    "messageId",
-    "messageType",
-    "sender",
-    "createdAt",
-    "sequence",
-    "payload",
-    "signature"
-  ],
   "properties": {
     "protocol": {
       "type": "string",
@@ -36,7 +24,8 @@
     },
     "messageId": {
       "type": "string",
-      "format": "uuid"
+      "format": "uuid",
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
     },
     "messageType": {
       "type": "string",
@@ -68,39 +57,2483 @@
       "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
     },
     "taskId": {
-      "type": "string",
-      "minLength": 1
+      "type": "string"
     },
     "negotiationId": {
-      "type": "string",
-      "minLength": 1
+      "type": "string"
     },
     "agreementId": {
-      "type": "string",
-      "minLength": 1
+      "type": "string"
     },
     "createdAt": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
     },
     "expiresAt": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
     },
     "sequence": {
       "type": "integer",
-      "minimum": 0
+      "minimum": 0,
+      "maximum": 9007199254740991
     },
     "previousMessageId": {
       "type": "string",
-      "format": "uuid"
+      "format": "uuid",
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+    },
+    "identityEvidence": {
+      "maxItems": 8,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "pakana.certification.reference.v1"
+          },
+          "certificateId": {
+            "type": "string",
+            "pattern": "^urn:pakana:(starter-pack|agent-control):[a-f0-9]{64}$"
+          },
+          "subjectId": {
+            "type": "string",
+            "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+          },
+          "credentialType": {
+            "type": "string",
+            "enum": [
+              "pakana.starter-pack.credential.v1",
+              "pakana.agent-control.credential.v1"
+            ]
+          },
+          "issuerVerificationMethod": {
+            "type": "string",
+            "pattern": "^(G[A-Z2-7]{55}|0x[0-9a-fA-F]{40})$"
+          },
+          "digest": {
+            "type": "object",
+            "properties": {
+              "algorithm": {
+                "type": "string",
+                "const": "sha256-pakana-json-v1"
+              },
+              "value": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": [
+              "algorithm",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "type",
+          "certificateId",
+          "subjectId",
+          "credentialType",
+          "issuerVerificationMethod",
+          "digest"
+        ],
+        "additionalProperties": false
+      }
     },
     "payload": {
-      "type": "object"
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "agent.card"
+            },
+            "agentId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": {
+              "type": "string"
+            },
+            "network": {
+              "type": "string",
+              "enum": [
+                "stellar:testnet",
+                "stellar:pubnet",
+                "eip155:84532",
+                "eip155:8453"
+              ]
+            },
+            "capabilities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "inputSchema": {},
+                  "outputSchema": {}
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "description",
+                  "tags"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "pricing": {
+              "type": "object",
+              "properties": {
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "CREDIT",
+                    "XLM",
+                    "USDC",
+                    "LBX"
+                  ]
+                },
+                "model": {
+                  "type": "string",
+                  "enum": [
+                    "fixed",
+                    "per-token",
+                    "per-minute",
+                    "negotiated"
+                  ]
+                },
+                "minimum": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "currency",
+                "model"
+              ],
+              "additionalProperties": false
+            },
+            "supportedSettlementRails": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "demo-credit",
+                  "stellar-x402",
+                  "base-lockb0x"
+                ]
+              }
+            },
+            "payouts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "rail": {
+                    "type": "string",
+                    "enum": [
+                      "demo-credit",
+                      "stellar-x402",
+                      "base-lockb0x"
+                    ]
+                  },
+                  "payTo": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "resource": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "lockb0x": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-fA-F]{40}$"
+                  }
+                },
+                "required": [
+                  "rail",
+                  "payTo"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "constraints": {
+              "type": "object",
+              "properties": {
+                "maxConcurrentTasks": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "supportedMediaTypes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "requiresHumanApproval": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "maxConcurrentTasks",
+                "supportedMediaTypes"
+              ],
+              "additionalProperties": false
+            },
+            "availability": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "available",
+                    "busy",
+                    "offline"
+                  ]
+                },
+                "validUntil": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                }
+              },
+              "required": [
+                "status",
+                "validUntil"
+              ],
+              "additionalProperties": false
+            },
+            "protocol": {
+              "type": "object",
+              "properties": {
+                "versions": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "const": "0.2"
+                  }
+                },
+                "extensions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "versions",
+                "extensions"
+              ],
+              "additionalProperties": false
+            },
+            "identity": {
+              "type": "object",
+              "properties": {
+                "publicKey": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "signingAlgorithm": {
+                  "type": "string",
+                  "const": "ES256K"
+                }
+              },
+              "required": [
+                "publicKey",
+                "signingAlgorithm"
+              ],
+              "additionalProperties": false
+            },
+            "presentation": {
+              "type": "object",
+              "properties": {
+                "iconUrl": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "required": [
+                "iconUrl"
+              ],
+              "additionalProperties": false
+            },
+            "advertisement": {
+              "type": "object",
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "live",
+                    "preview"
+                  ]
+                },
+                "badges": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "STELLAR",
+                      "BASE",
+                      "PREVIEW"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "mode",
+                "badges"
+              ],
+              "additionalProperties": false
+            },
+            "certifications": {
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "pakana.certification.reference.v1"
+                  },
+                  "certificateId": {
+                    "type": "string",
+                    "pattern": "^urn:pakana:(starter-pack|agent-control):[a-f0-9]{64}$"
+                  },
+                  "subjectId": {
+                    "type": "string",
+                    "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+                  },
+                  "credentialType": {
+                    "type": "string",
+                    "enum": [
+                      "pakana.starter-pack.credential.v1",
+                      "pakana.agent-control.credential.v1"
+                    ]
+                  },
+                  "issuerVerificationMethod": {
+                    "type": "string",
+                    "pattern": "^(G[A-Z2-7]{55}|0x[0-9a-fA-F]{40})$"
+                  },
+                  "digest": {
+                    "type": "object",
+                    "properties": {
+                      "algorithm": {
+                        "type": "string",
+                        "const": "sha256-pakana-json-v1"
+                      },
+                      "value": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                      }
+                    },
+                    "required": [
+                      "algorithm",
+                      "value"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "type",
+                  "certificateId",
+                  "subjectId",
+                  "credentialType",
+                  "issuerVerificationMethod",
+                  "digest"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "type",
+            "agentId",
+            "name",
+            "description",
+            "capabilities",
+            "pricing",
+            "constraints",
+            "availability",
+            "protocol",
+            "identity"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "task.request"
+            },
+            "taskId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "objective": {
+              "type": "string",
+              "minLength": 1
+            },
+            "requiredCapabilities": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "inputs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "artifactId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "mediaType": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "byteLength": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "digest": {
+                    "type": "object",
+                    "properties": {
+                      "algorithm": {
+                        "type": "string",
+                        "const": "sha256"
+                      },
+                      "value": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "algorithm",
+                      "value"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "location": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "inline"
+                          },
+                          "data": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "data"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "https"
+                          },
+                          "uri": {
+                            "type": "string",
+                            "format": "uri"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "uri"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "ipfs"
+                          },
+                          "cid": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "cid"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "logos-storage"
+                          },
+                          "cid": {
+                            "type": "string",
+                            "minLength": 16,
+                            "maxLength": 256,
+                            "pattern": "^[A-Za-z0-9]+$"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "cid"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "lockb0x"
+                          },
+                          "uri": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "uri"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "encryption": {
+                    "type": "object",
+                    "properties": {
+                      "algorithm": {
+                        "type": "string",
+                        "const": "xchacha20-poly1305"
+                      },
+                      "keyEnvelope": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "algorithm",
+                      "keyEnvelope"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "artifactId",
+                  "name",
+                  "mediaType",
+                  "byteLength",
+                  "digest",
+                  "location"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "constraints": {
+              "type": "object",
+              "properties": {
+                "maximumPrice": {
+                  "type": "object",
+                  "properties": {
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "CREDIT",
+                        "XLM",
+                        "USDC",
+                        "LBX"
+                      ]
+                    },
+                    "amount": {
+                      "type": "string",
+                      "pattern": "^(0|[1-9]\\d*)(\\.\\d+)?$"
+                    }
+                  },
+                  "required": [
+                    "currency",
+                    "amount"
+                  ],
+                  "additionalProperties": false
+                },
+                "acceptedSettlementRails": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "demo-credit",
+                      "stellar-x402",
+                      "base-lockb0x"
+                    ]
+                  }
+                },
+                "deadline": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                },
+                "requiredOutputMediaTypes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "confidentiality": {
+                  "type": "string",
+                  "enum": [
+                    "public",
+                    "private"
+                  ]
+                }
+              },
+              "required": [
+                "maximumPrice",
+                "deadline",
+                "requiredOutputMediaTypes",
+                "confidentiality"
+              ],
+              "additionalProperties": false
+            },
+            "acceptance": {
+              "type": "object",
+              "properties": {
+                "deterministicChecks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "description": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "digest",
+                          "schema",
+                          "command"
+                        ]
+                      },
+                      "expected": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "description",
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "evaluationRubric": {},
+                "minimumScore": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              },
+              "required": [
+                "deterministicChecks"
+              ],
+              "additionalProperties": false
+            },
+            "bidding": {
+              "type": "object",
+              "properties": {
+                "closesAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                },
+                "selectionMode": {
+                  "type": "string",
+                  "enum": [
+                    "requester",
+                    "policy"
+                  ]
+                },
+                "allowCounteroffers": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "closesAt",
+                "selectionMode",
+                "allowCounteroffers"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "taskId",
+            "title",
+            "objective",
+            "requiredCapabilities",
+            "inputs",
+            "constraints",
+            "acceptance",
+            "bidding"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "proposal.bid",
+                "proposal.counter",
+                "proposal.clarification",
+                "proposal.decline"
+              ]
+            },
+            "proposalId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "taskId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "providerId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "price": {
+              "type": "object",
+              "properties": {
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "CREDIT",
+                    "XLM",
+                    "USDC",
+                    "LBX"
+                  ]
+                },
+                "amount": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9]\\d*)(\\.\\d+)?$"
+                }
+              },
+              "required": [
+                "currency",
+                "amount"
+              ],
+              "additionalProperties": false
+            },
+            "settlementRail": {
+              "type": "string",
+              "enum": [
+                "demo-credit",
+                "stellar-x402",
+                "base-lockb0x"
+              ]
+            },
+            "estimatedCompletion": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "proposedDeliverables": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "mediaType": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id",
+                  "description",
+                  "mediaType"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "assumptions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "requestedInputs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "validUntil": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            },
+            "supersedes": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "proposalId",
+            "taskId",
+            "revision",
+            "providerId",
+            "price",
+            "estimatedCompletion",
+            "confidence",
+            "proposedDeliverables",
+            "assumptions",
+            "validUntil"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "clarification.request"
+            },
+            "clarificationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "taskId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposalId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "requesterId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "providerId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "question": {
+              "type": "string",
+              "minLength": 1
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            }
+          },
+          "required": [
+            "type",
+            "clarificationId",
+            "taskId",
+            "proposalId",
+            "requesterId",
+            "providerId",
+            "question",
+            "expiresAt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "clarification.response"
+            },
+            "clarificationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "taskId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposalId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "requesterId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "providerId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "response": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "type",
+            "clarificationId",
+            "taskId",
+            "proposalId",
+            "requesterId",
+            "providerId",
+            "response"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "proposal.selected"
+            },
+            "taskId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposalId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "requesterId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "providerId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "selectedAt": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            }
+          },
+          "required": [
+            "type",
+            "taskId",
+            "proposalId",
+            "requesterId",
+            "providerId",
+            "selectedAt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "agreement.accepted"
+            },
+            "agreementId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "taskId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposalId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "requesterId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "providerId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "terms": {
+              "type": "object",
+              "properties": {
+                "objective": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "inputs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "artifactId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "mediaType": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "byteLength": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "digest": {
+                        "type": "object",
+                        "properties": {
+                          "algorithm": {
+                            "type": "string",
+                            "const": "sha256"
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "algorithm",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "location": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "inline"
+                              },
+                              "data": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "data"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "https"
+                              },
+                              "uri": {
+                                "type": "string",
+                                "format": "uri"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "uri"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "ipfs"
+                              },
+                              "cid": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "cid"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "logos-storage"
+                              },
+                              "cid": {
+                                "type": "string",
+                                "minLength": 16,
+                                "maxLength": 256,
+                                "pattern": "^[A-Za-z0-9]+$"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "cid"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "lockb0x"
+                              },
+                              "uri": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "uri"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      },
+                      "encryption": {
+                        "type": "object",
+                        "properties": {
+                          "algorithm": {
+                            "type": "string",
+                            "const": "xchacha20-poly1305"
+                          },
+                          "keyEnvelope": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "algorithm",
+                          "keyEnvelope"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "artifactId",
+                      "name",
+                      "mediaType",
+                      "byteLength",
+                      "digest",
+                      "location"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "deliverables": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "description": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "mediaType": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "description",
+                      "mediaType"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "price": {
+                  "type": "object",
+                  "properties": {
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "CREDIT",
+                        "XLM",
+                        "USDC",
+                        "LBX"
+                      ]
+                    },
+                    "amount": {
+                      "type": "string",
+                      "pattern": "^(0|[1-9]\\d*)(\\.\\d+)?$"
+                    }
+                  },
+                  "required": [
+                    "currency",
+                    "amount"
+                  ],
+                  "additionalProperties": false
+                },
+                "deadline": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                },
+                "acceptance": {},
+                "settlement": {}
+              },
+              "required": [
+                "objective",
+                "inputs",
+                "deliverables",
+                "price",
+                "deadline",
+                "acceptance",
+                "settlement"
+              ],
+              "additionalProperties": false
+            },
+            "termsHash": {
+              "type": "string",
+              "minLength": 1
+            },
+            "requesterSignature": {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "const": "ES256K"
+                },
+                "publicKey": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "algorithm",
+                "publicKey",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "providerSignature": {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "const": "ES256K"
+                },
+                "publicKey": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "algorithm",
+                "publicKey",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "agreementId",
+            "taskId",
+            "proposalId",
+            "requesterId",
+            "providerId",
+            "terms",
+            "termsHash",
+            "requesterSignature",
+            "providerSignature"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "agreement.offer"
+            },
+            "agreementId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "taskId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposalId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "requesterId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "providerId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "terms": {
+              "type": "object",
+              "properties": {
+                "objective": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "inputs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "artifactId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "mediaType": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "byteLength": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "digest": {
+                        "type": "object",
+                        "properties": {
+                          "algorithm": {
+                            "type": "string",
+                            "const": "sha256"
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "algorithm",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "location": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "inline"
+                              },
+                              "data": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "data"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "https"
+                              },
+                              "uri": {
+                                "type": "string",
+                                "format": "uri"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "uri"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "ipfs"
+                              },
+                              "cid": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "cid"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "logos-storage"
+                              },
+                              "cid": {
+                                "type": "string",
+                                "minLength": 16,
+                                "maxLength": 256,
+                                "pattern": "^[A-Za-z0-9]+$"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "cid"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "lockb0x"
+                              },
+                              "uri": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "uri"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      },
+                      "encryption": {
+                        "type": "object",
+                        "properties": {
+                          "algorithm": {
+                            "type": "string",
+                            "const": "xchacha20-poly1305"
+                          },
+                          "keyEnvelope": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "algorithm",
+                          "keyEnvelope"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "artifactId",
+                      "name",
+                      "mediaType",
+                      "byteLength",
+                      "digest",
+                      "location"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "deliverables": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "description": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "mediaType": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "description",
+                      "mediaType"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "price": {
+                  "type": "object",
+                  "properties": {
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "CREDIT",
+                        "XLM",
+                        "USDC",
+                        "LBX"
+                      ]
+                    },
+                    "amount": {
+                      "type": "string",
+                      "pattern": "^(0|[1-9]\\d*)(\\.\\d+)?$"
+                    }
+                  },
+                  "required": [
+                    "currency",
+                    "amount"
+                  ],
+                  "additionalProperties": false
+                },
+                "deadline": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                },
+                "acceptance": {},
+                "settlement": {}
+              },
+              "required": [
+                "objective",
+                "inputs",
+                "deliverables",
+                "price",
+                "deadline",
+                "acceptance",
+                "settlement"
+              ],
+              "additionalProperties": false
+            },
+            "termsHash": {
+              "type": "string",
+              "minLength": 1
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            },
+            "requesterSignature": {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "const": "ES256K"
+                },
+                "publicKey": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "algorithm",
+                "publicKey",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "agreementId",
+            "taskId",
+            "proposalId",
+            "requesterId",
+            "providerId",
+            "terms",
+            "termsHash",
+            "expiresAt",
+            "requesterSignature"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "agreement.acceptance"
+            },
+            "agreementId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "taskId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposalId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "requesterId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "providerId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "termsHash": {
+              "type": "string",
+              "minLength": 1
+            },
+            "providerSignature": {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "const": "ES256K"
+                },
+                "publicKey": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "algorithm",
+                "publicKey",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "agreementId",
+            "taskId",
+            "proposalId",
+            "requesterId",
+            "providerId",
+            "termsHash",
+            "providerSignature"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "task.event"
+            },
+            "taskId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "agreementId": {
+              "type": "string"
+            },
+            "event": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "NEGOTIATING",
+                "AGREED",
+                "FUNDED",
+                "WORKING",
+                "INPUT_REQUIRED",
+                "DELIVERED",
+                "EVALUATING",
+                "COMPLETED",
+                "FAILED",
+                "CANCELED",
+                "EXPIRED"
+              ]
+            },
+            "progress": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "message": {
+              "type": "string"
+            },
+            "artifact": {
+              "type": "object",
+              "properties": {
+                "artifactId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "mediaType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "byteLength": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "digest": {
+                  "type": "object",
+                  "properties": {
+                    "algorithm": {
+                      "type": "string",
+                      "const": "sha256"
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                "location": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "inline"
+                        },
+                        "data": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "data"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "https"
+                        },
+                        "uri": {
+                          "type": "string",
+                          "format": "uri"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "uri"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "ipfs"
+                        },
+                        "cid": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "cid"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "logos-storage"
+                        },
+                        "cid": {
+                          "type": "string",
+                          "minLength": 16,
+                          "maxLength": 256,
+                          "pattern": "^[A-Za-z0-9]+$"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "cid"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "lockb0x"
+                        },
+                        "uri": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "uri"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "encryption": {
+                  "type": "object",
+                  "properties": {
+                    "algorithm": {
+                      "type": "string",
+                      "const": "xchacha20-poly1305"
+                    },
+                    "keyEnvelope": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "keyEnvelope"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "artifactId",
+                "name",
+                "mediaType",
+                "byteLength",
+                "digest",
+                "location"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "taskId",
+            "event"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "receipt.delivery"
+            },
+            "receiptId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "agreementId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "taskId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "requesterId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "providerId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "termsHash": {
+              "type": "string",
+              "minLength": 1
+            },
+            "artifacts": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "artifactId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "mediaType": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "byteLength": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "digest": {
+                    "type": "object",
+                    "properties": {
+                      "algorithm": {
+                        "type": "string",
+                        "const": "sha256"
+                      },
+                      "value": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "algorithm",
+                      "value"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "location": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "inline"
+                          },
+                          "data": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "data"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "https"
+                          },
+                          "uri": {
+                            "type": "string",
+                            "format": "uri"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "uri"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "ipfs"
+                          },
+                          "cid": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "cid"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "logos-storage"
+                          },
+                          "cid": {
+                            "type": "string",
+                            "minLength": 16,
+                            "maxLength": 256,
+                            "pattern": "^[A-Za-z0-9]+$"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "cid"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "lockb0x"
+                          },
+                          "uri": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "uri"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "encryption": {
+                    "type": "object",
+                    "properties": {
+                      "algorithm": {
+                        "type": "string",
+                        "const": "xchacha20-poly1305"
+                      },
+                      "keyEnvelope": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "algorithm",
+                      "keyEnvelope"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "artifactId",
+                  "name",
+                  "mediaType",
+                  "byteLength",
+                  "digest",
+                  "location"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "startedAt": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            },
+            "deliveredAt": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            },
+            "providerSignature": {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "const": "ES256K"
+                },
+                "publicKey": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "algorithm",
+                "publicKey",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "requesterAcknowledgement": {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "const": "ES256K"
+                },
+                "publicKey": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "algorithm",
+                "publicKey",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "receiptId",
+            "agreementId",
+            "taskId",
+            "requesterId",
+            "providerId",
+            "termsHash",
+            "artifacts",
+            "startedAt",
+            "deliveredAt",
+            "providerSignature"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "receipt.evaluation"
+            },
+            "receiptId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "deliveryReceiptId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "evaluatorId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "checks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "passed": {
+                    "type": "boolean"
+                  },
+                  "evidence": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "passed"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "scores": {
+              "type": "object",
+              "properties": {
+                "quality": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "timeliness": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "compliance": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              },
+              "required": [
+                "quality",
+                "timeliness",
+                "compliance"
+              ],
+              "additionalProperties": false
+            },
+            "overallScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "evaluationMethod": {
+              "type": "string",
+              "enum": [
+                "deterministic",
+                "human",
+                "llm",
+                "hybrid"
+              ]
+            },
+            "evaluatedAt": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            },
+            "evaluatorSignature": {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "const": "ES256K"
+                },
+                "publicKey": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "algorithm",
+                "publicKey",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "receiptId",
+            "deliveryReceiptId",
+            "evaluatorId",
+            "checks",
+            "scores",
+            "overallScore",
+            "evaluationMethod",
+            "evaluatorSignature"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "receipt.settlement"
+            },
+            "receiptId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "agreementId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "termsHash": {
+              "type": "string",
+              "minLength": 1
+            },
+            "requesterId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "providerId": {
+              "type": "string",
+              "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "demo-credit",
+                "soroban",
+                "base-lockb0x"
+              ]
+            },
+            "amount": {
+              "type": "object",
+              "properties": {
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "CREDIT",
+                    "XLM",
+                    "USDC",
+                    "LBX"
+                  ]
+                },
+                "amount": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9]\\d*)(\\.\\d+)?$"
+                }
+              },
+              "required": [
+                "currency",
+                "amount"
+              ],
+              "additionalProperties": false
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "reserved",
+                "released",
+                "refunded",
+                "failed"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            },
+            "settledAt": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            },
+            "settlementSignature": {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "const": "ES256K"
+                },
+                "publicKey": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "algorithm",
+                "publicKey",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "transactionHash": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "type",
+            "receiptId",
+            "agreementId",
+            "termsHash",
+            "requesterId",
+            "providerId",
+            "method",
+            "amount",
+            "status",
+            "reason",
+            "settledAt",
+            "settlementSignature"
+          ],
+          "additionalProperties": false
+        }
+      ]
     },
     "signature": {
       "type": "object",
-      "required": ["algorithm", "publicKey", "value"],
       "properties": {
         "algorithm": {
           "type": "string",
@@ -115,8 +2548,25 @@
           "minLength": 1
         }
       },
+      "required": [
+        "algorithm",
+        "publicKey",
+        "value"
+      ],
       "additionalProperties": false
     }
   },
+  "required": [
+    "protocol",
+    "version",
+    "network",
+    "messageId",
+    "messageType",
+    "sender",
+    "createdAt",
+    "sequence",
+    "payload",
+    "signature"
+  ],
   "additionalProperties": false
 }

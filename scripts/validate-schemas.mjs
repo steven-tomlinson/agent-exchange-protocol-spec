@@ -46,7 +46,30 @@ const sampleEnvelope = {
   sender: "ae:17bXzK9P8qL3mN5vR2wT4yU1j",
   createdAt: "2026-08-20T12:00:00Z",
   sequence: 1,
-  payload: { type: "task.request", taskId: "task-001" },
+  payload: {
+    type: "task.request",
+    taskId: "task-001",
+    title: "Verify a bounded artifact",
+    objective: "Produce one schema-valid verification report",
+    requiredCapabilities: ["artifact.verify"],
+    inputs: [],
+    constraints: {
+      maximumPrice: { currency: "USDC", amount: "5" },
+      acceptedSettlementRails: ["base-lockb0x"],
+      deadline: "2026-08-20T13:00:00Z",
+      requiredOutputMediaTypes: ["application/json"],
+      confidentiality: "public"
+    },
+    acceptance: {
+      deterministicChecks: [],
+      minimumScore: 100
+    },
+    bidding: {
+      closesAt: "2026-08-20T12:15:00Z",
+      selectionMode: "requester",
+      allowCounteroffers: true
+    }
+  },
   signature: {
     algorithm: "ES256K",
     publicKey: "04a1b2c3d4e5f6",
@@ -60,5 +83,15 @@ if (validateEnvelope(sampleEnvelope)) {
   console.error("✗ Sample SignedEnvelope validation failed:", validateEnvelope.errors);
   process.exit(1);
 }
+
+const incompleteEnvelope = {
+  ...sampleEnvelope,
+  payload: { type: "task.request", taskId: "task-001" }
+};
+if (validateEnvelope(incompleteEnvelope)) {
+  console.error("✗ Incomplete task.request payload was unexpectedly accepted");
+  process.exit(1);
+}
+console.log("✓ Incomplete task.request payload rejected");
 
 console.log(`\nAll ${validators.size} AEP JSON Schemas compiled and validated successfully!`);

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/agreement-acceptance.json",
+  "title": "AEP Agreement Acceptance",
+  "description": "Provider-signed agreement acceptance payload.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "agreement.acceptance"
+    },
+    "agreementId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "taskId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "proposalId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requesterId": {
+      "type": "string",
+      "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+    },
+    "providerId": {
+      "type": "string",
+      "pattern": "^ae:[1-9A-HJ-NP-Za-km-z]+$"
+    },
+    "termsHash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "providerSignature": {
+      "type": "object",
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "const": "ES256K"
+        },
+        "publicKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "algorithm",
+        "publicKey",
+        "value"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "type",
+    "agreementId",
+    "taskId",
+    "proposalId",
+    "requesterId",
+    "providerId",
+    "termsHash",
+    "providerSignature"
+  ],
+  "additionalProperties": false
+}

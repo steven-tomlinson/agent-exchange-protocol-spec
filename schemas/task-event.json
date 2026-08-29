@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/steven-tomlinson/agent-exchange-protocol-spec/main/schemas/task-event.json",
+  "title": "AEP Task Event",
+  "description": "Task state transition payload.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "task.event"
+    },
+    "taskId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agreementId": {
+      "type": "string"
+    },
+    "event": {
+      "type": "string",
+      "enum": [
+        "OPEN",
+        "NEGOTIATING",
+        "AGREED",
+        "FUNDED",
+        "WORKING",
+        "INPUT_REQUIRED",
+        "DELIVERED",
+        "EVALUATING",
+        "COMPLETED",
+        "FAILED",
+        "CANCELED",
+        "EXPIRED"
+      ]
+    },
+    "progress": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "message": {
+      "type": "string"
+    },
+    "artifact": {
+      "type": "object",
+      "properties": {
+        "artifactId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mediaType": {
+          "type": "string",
+          "minLength": 1
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "digest": {
+          "type": "object",
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "const": "sha256"
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "algorithm",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "location": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "inline"
+                },
+                "data": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "data"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "https"
+                },
+                "uri": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "required": [
+                "type",
+                "uri"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "ipfs"
+                },
+                "cid": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "type",
+                "cid"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "logos-storage"
+                },
+                "cid": {
+                  "type": "string",
+                  "minLength": 16,
+                  "maxLength": 256,
+                  "pattern": "^[A-Za-z0-9]+$"
+                }
+              },
+              "required": [
+                "type",
+                "cid"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "lockb0x"
+                },
+                "uri": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "type",
+                "uri"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "encryption": {
+          "type": "object",
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "const": "xchacha20-poly1305"
+            },
+            "keyEnvelope": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "algorithm",
+            "keyEnvelope"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "artifactId",
+        "name",
+        "mediaType",
+        "byteLength",
+        "digest",
+        "location"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "type",
+    "taskId",
+    "event"
+  ],
+  "additionalProperties": false
+}
